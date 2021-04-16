@@ -1,8 +1,8 @@
 # Dan-ms-pedidos
 
-Orders API repository for DAN course.
+Repositorio API de pedidos para laboratorio curso DAN. 
 
-## Developers 
+## Desarrolladores
 
 - Durand, Matias. 
 - Suppicich, Juan Sebastian.
