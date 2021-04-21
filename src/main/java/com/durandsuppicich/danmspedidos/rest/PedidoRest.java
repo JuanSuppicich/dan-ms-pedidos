@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 import com.durandsuppicich.danmspedidos.domain.DetallePedido;
 import com.durandsuppicich.danmspedidos.domain.Pedido;
+import com.durandsuppicich.danmspedidos.service.IServicioPedido;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,15 +30,31 @@ import io.swagger.annotations.ApiOperation;
 public class PedidoRest {
 
     private List<Pedido> pedidos = new ArrayList<Pedido>();
-    private Integer ID_GEN = 1; 
+    private final IServicioPedido servicioPedido;
 
+
+    public PedidoRest(IServicioPedido servicioPedido) {
+        this.servicioPedido = servicioPedido;
+    }
 
     @PostMapping
     @ApiOperation(value = "Crea un nuevo pedido")
     public ResponseEntity<Pedido> crear(@RequestBody Pedido pedido) {
-        pedido.setId(ID_GEN++);
-        pedidos.add(pedido);
-        return ResponseEntity.ok(pedido);
+        if (pedido.getObra() != null && pedido.getDetalles() != null 
+            && pedido.getDetalles().size() > 0) {
+                
+                Boolean detallesOk = pedido.getDetalles()
+                    .stream()
+                    .allMatch(dp -> dp.getProducto() != null 
+                        && dp.getCantidad() != null 
+                        && dp.getCantidad() > 0);
+
+                if (detallesOk) {          
+                    Pedido body = servicioPedido.crear(pedido);
+                    return ResponseEntity.ok(body);
+                }
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(path = "/{idPedido}/detalle")
@@ -124,7 +141,7 @@ public class PedidoRest {
 
     @DeleteMapping(path = "/{id}")
     @ApiOperation(value = "Elimina un pedido en base al id")
-    public ResponseEntity<Pedido> borrar(@PathVariable Integer id) {
+    public ResponseEntity<Pedido> eliminar(@PathVariable Integer id) {
 
         OptionalInt indexOpt = IntStream
             .range(0, pedidos.size())
@@ -142,7 +159,7 @@ public class PedidoRest {
 
     @DeleteMapping(path = "/{idPedido}/detalle/{id}")
     @ApiOperation(value = "Elimina un detalle del pedido en base al id")
-    public ResponseEntity<Pedido> borrarDetalle(@PathVariable Integer idPedido, @PathVariable Integer id) {
+    public ResponseEntity<Pedido> eliminarDetalle(@PathVariable Integer idPedido, @PathVariable Integer id) {
 
         Optional<Pedido> pedidoOpt = pedidos
             .stream()
