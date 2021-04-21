@@ -6,6 +6,11 @@ public class EstadoPedido {
     private String estado;
     
     
+    public EstadoPedido(Integer id, String estado) {
+        this.id = id;
+        this.estado = estado;
+    }
+
     public Integer getId() {
         return id;
     }
