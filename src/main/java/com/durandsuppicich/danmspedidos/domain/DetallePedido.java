@@ -8,6 +8,9 @@ public class DetallePedido {
     private Producto producto;
     
     
+    public DetallePedido(){
+        
+    }
     public DetallePedido(Producto producto, Integer cantidad, Double precio) {
         this.producto = producto;
         this.cantidad = cantidad;
