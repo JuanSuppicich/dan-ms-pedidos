@@ -14,7 +14,7 @@ public class ServicioCliente implements IServicioCliente {
 
     @Override
     public Double maximoSaldoNegativo(Obra obra) {
-        return 100.0;
+        return 10000.0;
     }
 
 }

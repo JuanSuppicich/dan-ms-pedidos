@@ -41,8 +41,7 @@ public class ServicioPedido implements IServicioPedido {
         Double nuevoSaldo = saldoCliente - totalOrden;
 
         if (existeStock) {
-            if (!(nuevoSaldo < 0) || (nuevoSaldo < 0 &&  
-                this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo))) {
+            if (nuevoSaldo >= 0 || this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo)) {
                 
                 pedido.setEstado(new EstadoPedido(1, "ACEPTADO"));
             } 

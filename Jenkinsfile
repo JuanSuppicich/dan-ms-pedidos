@@ -19,13 +19,12 @@ pipeline {
             steps {
                 bat "java -version"
                 bat "./mvnw clean"
-                bat "echo buildeando develop"
+                bat "echo building develop"
             }
         }
         stage('backend tests') {
             steps {
                 bat "./mvnw verify"
-                bat "echo 'configurar para ejecutar los tests'"
             }
         }
         stage('Analisis estatico') {
