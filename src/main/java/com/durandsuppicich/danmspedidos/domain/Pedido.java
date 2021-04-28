@@ -33,8 +33,8 @@ public class Pedido {
     @JoinColumn(name = "ID_OBRA")
     private Obra obra;
 
-    @OneToMany
-    @JoinColumn(name = "ID_DETALLE_PEDIDO", referencedColumnName = "ID_DETALLE_PEDIDO")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "ID_PEDIDO", referencedColumnName = "ID_PEDIDO")
     private List<DetallePedido> detalles;
 
     public Integer getId() {
