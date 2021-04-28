@@ -3,12 +3,12 @@ package com.durandsuppicich.danmspedidos.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.durandsuppicich.danmspedidos.dao.PedidoJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.DetallePedido;
 import com.durandsuppicich.danmspedidos.domain.EstadoPedido;
 import com.durandsuppicich.danmspedidos.domain.Obra;
 import com.durandsuppicich.danmspedidos.domain.Pedido;
 import com.durandsuppicich.danmspedidos.domain.Producto;
-import com.durandsuppicich.danmspedidos.repository.PedidoRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -17,12 +17,12 @@ public class ServicioPedido implements IServicioPedido {
 
     private final IServicioCliente servicioCliente; 
     private final IServicioMaterial servicioMaterial;
-    private final PedidoRepository pedidoRepository;
+    private final PedidoJpaRepository pedidoRepository;
 
 
     public ServicioPedido(IServicioCliente servicioCliente, 
                         IServicioMaterial servicioMaterial,
-                        PedidoRepository pedidoRepository) {
+                        PedidoJpaRepository pedidoRepository) {
         this.servicioCliente = servicioCliente;
         this.servicioMaterial = servicioMaterial;
         this.pedidoRepository = pedidoRepository;

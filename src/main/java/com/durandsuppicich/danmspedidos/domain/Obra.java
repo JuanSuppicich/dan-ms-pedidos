@@ -1,27 +1,46 @@
 package com.durandsuppicich.danmspedidos.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+//Tiene que ser READ ONLY
+@Entity
+@Table(name = "OBRA")
 public class Obra {
-    
-    private Integer id; 
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_OBRA")
+    private Integer id;
+
+    @Column(unique = true)
     private String descripcion;
-    
-    
+
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getDescripcion() {
         return descripcion;
     }
+
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
     @Override
     public String toString() {
         return "Obra [descripcion=" + descripcion + ", id=" + id + "]";
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -30,6 +49,7 @@ public class Obra {
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -50,6 +70,6 @@ public class Obra {
         } else if (!id.equals(other.id))
             return false;
         return true;
-    } 
+    }
 
 }
