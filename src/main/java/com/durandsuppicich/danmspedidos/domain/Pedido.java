@@ -24,7 +24,7 @@ public class Pedido {
     private Integer id;
 
     private Instant fecha;
-    
+
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "ID_ESTADO_PEDIDO")
     private EstadoPedido estado;
@@ -75,6 +75,10 @@ public class Pedido {
 
     public void setObra(Obra obra) {
         this.obra = obra;
+    }
+
+    public void addDetalle(DetallePedido detalle) {
+        this.detalles.add(detalle);
     }
 
     @Override
