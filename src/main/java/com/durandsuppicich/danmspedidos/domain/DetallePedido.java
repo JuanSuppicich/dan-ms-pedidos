@@ -25,7 +25,7 @@ public class DetallePedido {
     @Column(nullable = false)
     private Double precio;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_PRODUCTO")
     private Producto producto;
 

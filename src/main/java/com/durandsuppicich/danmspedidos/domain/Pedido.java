@@ -25,11 +25,11 @@ public class Pedido {
 
     private Instant fecha;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_ESTADO_PEDIDO")
     private EstadoPedido estado;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ID_OBRA")
     private Obra obra;
 

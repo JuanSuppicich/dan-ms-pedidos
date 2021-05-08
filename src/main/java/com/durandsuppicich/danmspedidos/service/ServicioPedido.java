@@ -85,7 +85,7 @@ public class ServicioPedido implements IServicioPedido {
 
     @Override
     public Optional<Pedido> pedidoPorIdObra(Integer idObra) {
-        return pedidoRepository.findByIdObra(idObra);
+        return pedidoRepository.findByObra_Id(idObra);
     }
 
     @Override
