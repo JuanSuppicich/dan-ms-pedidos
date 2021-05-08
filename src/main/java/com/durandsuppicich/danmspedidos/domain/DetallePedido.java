@@ -1,6 +1,5 @@
 package com.durandsuppicich.danmspedidos.domain;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,7 +24,7 @@ public class DetallePedido {
     @Column(nullable = false)
     private Double precio;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "ID_PRODUCTO")
     private Producto producto;
 

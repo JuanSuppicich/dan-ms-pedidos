@@ -23,13 +23,14 @@ public class Pedido {
     @Column(name = "ID_PEDIDO")
     private Integer id;
 
+    @Column(nullable = false)
     private Instant fecha;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "ID_ESTADO_PEDIDO")
     private EstadoPedido estado;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "ID_OBRA")
     private Obra obra;
 

@@ -19,8 +19,15 @@ public class EstadoPedido {
     @Column(nullable = false, unique = true)
     private String estado;
 
+    public EstadoPedido() {
+    }
+
     public EstadoPedido(Integer id, String estado) {
         this.id = id;
+        this.estado = estado;
+    }
+
+    public EstadoPedido(String estado) {
         this.estado = estado;
     }
 

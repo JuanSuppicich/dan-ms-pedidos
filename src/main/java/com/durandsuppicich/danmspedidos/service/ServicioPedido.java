@@ -56,7 +56,7 @@ public class ServicioPedido implements IServicioPedido {
         } else {
             pedido.setEstado(new EstadoPedido(2, "PENDIENTE"));
         }
-        return this.pedidoRepository.save(pedido);
+        return pedidoRepository.save(pedido);
     }
 
     @Override
