@@ -10,7 +10,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "DETALLE_PEDIDO")
+@Table(name = "DETALLE_PEDIDO", schema = "MS_PEDIDOS")
 public class DetallePedido {
 
     @Id
