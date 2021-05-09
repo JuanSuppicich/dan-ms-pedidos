@@ -48,7 +48,4 @@ public class MensajeError {
         ", timestamp=" + timeStamp + '\n' +
         "}";
     }
-
-    
-
 }
