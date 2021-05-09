@@ -1,34 +1,57 @@
 package com.durandsuppicich.danmspedidos.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+//Tiene que ser READ ONLY
+@Entity
+@Table(name = "PRODUCTO")
 public class Producto {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_PRODUCTO")
     private Integer id;
+
+    @Column(nullable = false, length = 32)
     private String descripcion;
+
+    @Column(nullable = false)
     private Double precio;
-    
-    
+
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getDescripcion() {
         return descripcion;
     }
+
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
     public Double getPrecio() {
         return precio;
     }
+
     public void setPrecio(Double precio) {
         this.precio = precio;
     }
+
     @Override
     public String toString() {
         return "Producto [descripcion=" + descripcion + ", id=" + id + ", precio=" + precio + "]";
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -38,6 +61,7 @@ public class Producto {
         result = prime * result + ((precio == null) ? 0 : precio.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

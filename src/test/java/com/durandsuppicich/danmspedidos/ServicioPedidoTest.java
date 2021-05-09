@@ -13,7 +13,7 @@ import com.durandsuppicich.danmspedidos.domain.DetallePedido;
 import com.durandsuppicich.danmspedidos.domain.Obra;
 import com.durandsuppicich.danmspedidos.domain.Pedido;
 import com.durandsuppicich.danmspedidos.domain.Producto;
-import com.durandsuppicich.danmspedidos.repository.PedidoRepository;
+import com.durandsuppicich.danmspedidos.repository.PedidoInMemoryRepository;
 import com.durandsuppicich.danmspedidos.service.IServicioCliente;
 import com.durandsuppicich.danmspedidos.service.IServicioMaterial;
 import com.durandsuppicich.danmspedidos.service.IServicioPedido;
@@ -33,7 +33,7 @@ public class ServicioPedidoTest {
     @MockBean
     IServicioMaterial servicioMaterial;
     @MockBean
-    PedidoRepository pedidoRepository;
+    PedidoInMemoryRepository pedidoRepository;
 
 
     @Test

@@ -1,32 +1,57 @@
 package com.durandsuppicich.danmspedidos.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "ESTADO_PEDIDO")
 public class EstadoPedido {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID_ESTADO_PEDIDO")
     private Integer id;
+
+    @Column(nullable = false, unique = true)
     private String estado;
-    
-    
+
+    public EstadoPedido() {
+    }
+
     public EstadoPedido(Integer id, String estado) {
         this.id = id;
+        this.estado = estado;
+    }
+
+    public EstadoPedido(String estado) {
         this.estado = estado;
     }
 
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getEstado() {
         return estado;
     }
+
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
     @Override
     public String toString() {
         return "EstadoPedido [estado=" + estado + ", id=" + id + "]";
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -35,6 +60,7 @@ public class EstadoPedido {
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
