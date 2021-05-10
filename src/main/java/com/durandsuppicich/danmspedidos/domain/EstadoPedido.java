@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ESTADO_PEDIDO")
+@Table(name = "ESTADO_PEDIDO", schema = "MS_PEDIDOS")
 public class EstadoPedido {
 
     @Id

@@ -2,18 +2,15 @@ package com.durandsuppicich.danmspedidos.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 //Tiene que ser READ ONLY
 @Entity
-@Table(name = "OBRA")
+@Table(name = "OBRA", schema = "MS_PEDIDOS")
 public class Obra {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_OBRA")
     private Integer id;
 
