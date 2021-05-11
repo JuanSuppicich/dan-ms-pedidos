@@ -7,11 +7,11 @@ import javax.persistence.Table;
 
 //Tiene que ser READ ONLY
 @Entity
-@Table(name = "PRODUCTO", schema = "MS_PEDIDOS")
+@Table(name = "MATERIAL", schema = "MS_MATERIALES")
 public class Producto {
 
     @Id
-    @Column(name = "ID_PRODUCTO")
+    @Column(name = "ID_MATERIAL")
     private Integer id;
 
     @Column(nullable = false, length = 32)

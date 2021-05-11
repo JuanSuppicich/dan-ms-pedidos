@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 //Tiene que ser READ ONLY
 @Entity
-@Table(name = "OBRA", schema = "MS_PEDIDOS")
+@Table(name = "OBRA", schema = "MS_USUARIOS")
 public class Obra {
 
     @Id
