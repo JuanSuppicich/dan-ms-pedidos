@@ -20,7 +20,15 @@ public interface IServicioPedido {
 
     Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle);
 
+    List<Pedido> pedidosPorEstado(String estado);
+
+    List<Pedido> pedidosPorCuit(String cuit);
+
     void actualizar(Integer id, Pedido pedido);
+
+    void actualizarDetalle(Integer idPedido, Integer id, DetallePedido detalle);
+
+    void actualizarEstado(Integer id, Pedido pedido);
 
     void eliminar(Integer id);
 

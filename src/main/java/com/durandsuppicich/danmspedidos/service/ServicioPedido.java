@@ -2,6 +2,8 @@ package com.durandsuppicich.danmspedidos.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 import com.durandsuppicich.danmspedidos.dao.DetallePedidoJpaRepository;
 import com.durandsuppicich.danmspedidos.dao.PedidoJpaRepository;
@@ -34,28 +36,7 @@ public class ServicioPedido implements IServicioPedido {
     @Override
     public Pedido crear(Pedido pedido) {
 
-        Boolean existeStock = pedido.getDetalles()
-                                    .stream()
-                                    .allMatch(dp -> 
-                                    verificarStock(dp.getProducto(), dp.getCantidad()));
-
-        Double totalOrden = pedido.getDetalles()
-                                .stream()
-                                .mapToDouble(dp -> dp.getCantidad() * dp.getPrecio()).sum();
-    
-        Double saldoCliente = servicioCliente.saldoCliente(pedido.getObra());
-        Double nuevoSaldo = saldoCliente - totalOrden;
-
-        if (existeStock) {
-            if (nuevoSaldo >= 0 || this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo)) {
-
-                pedido.setEstado(new EstadoPedido(1, "ACEPTADO"));
-            } else {
-                throw new BadRequestException("No tiene aprobacion crediticia");
-            }
-        } else {
-            pedido.setEstado(new EstadoPedido(2, "PENDIENTE"));
-        }
+        pedido.setEstado(new EstadoPedido(1, "Nuevo"));
         return pedidoRepository.save(pedido);
     }
 
@@ -89,6 +70,17 @@ public class ServicioPedido implements IServicioPedido {
     }
 
     @Override
+    public List<Pedido> pedidosPorEstado(String estado) {
+        return pedidoRepository.findByEstado_estado(estado);
+    }
+
+    
+    @Override
+    public List<Pedido> pedidosPorCuit(String cuit) {
+        return pedidoRepository.findByCuit(cuit);
+    }
+
+    @Override
     public Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle) {
 
         Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
@@ -111,6 +103,82 @@ public class ServicioPedido implements IServicioPedido {
 
         if (pedidoRepository.existsById(id)) {
             pedidoRepository.save(pedido);
+        } else {
+            throw new NotFoundException("Pedido inexistente. Id: " + id);
+        }
+    }
+
+    @Override
+    public void actualizarDetalle(Integer idPedido, Integer id, DetallePedido detalle) {
+        
+        Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
+
+        if (pedido.isPresent()) {
+
+            List<DetallePedido> detalles = pedido.get().getDetalles();
+
+            OptionalInt index = IntStream.range(0, detalles.size())
+                .filter(i -> detalles.get(i).getId().equals(id))
+                .findFirst();
+
+            if (index.isPresent()) {
+                detalles.set(index.getAsInt(), detalle);
+                pedidoRepository.save(pedido.get());
+            } else {
+                throw new NotFoundException("Detalle inexistente. Id: " + id);
+            }
+        } else {
+            throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
+        }
+    }
+
+    @Override
+    public void actualizarEstado(Integer id, Pedido pedidoParcial) {
+
+        Optional<Pedido> pedidoOpt = pedidoRepository.findById(id);
+
+        EstadoPedido estadoPedido = pedidoParcial.getEstado();
+
+        if (pedidoOpt.isPresent()) {
+
+            Pedido pedido = pedidoOpt.get();
+
+            if (estadoPedido.getEstado().equals("Confirmado")) {
+
+                Boolean existeStock = pedido.getDetalles()
+                .stream()
+                .allMatch(dp -> 
+                verificarStock(dp.getProducto(), dp.getCantidad()));
+
+                Double totalOrden = pedido.getDetalles()
+                                .stream()
+                                .mapToDouble(dp -> dp.getCantidad() * dp.getPrecio()).sum();
+
+                Double saldoCliente = servicioCliente.saldoCliente(pedido.getObra());
+                Double nuevoSaldo = saldoCliente - totalOrden;
+
+                if (existeStock) { 
+                    
+                    if (nuevoSaldo >= 0 || this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo)) {
+
+                        pedido.setEstado(new EstadoPedido(5, "Aceptado"));
+
+                    } else {
+
+                        pedido.setEstado(new EstadoPedido(6, "Rechazado"));
+                        pedidoRepository.save(pedido);
+                        throw new BadRequestException("No tiene aprobacion crediticia");
+
+                    }
+                } else {
+                    pedido.setEstado(new EstadoPedido(3, "Pendiente"));
+                }
+            } else {
+                pedido.setEstado(estadoPedido);
+            }
+
+            pedidoRepository.save(pedido);
+
         } else {
             throw new NotFoundException("Pedido inexistente. Id: " + id);
         }
