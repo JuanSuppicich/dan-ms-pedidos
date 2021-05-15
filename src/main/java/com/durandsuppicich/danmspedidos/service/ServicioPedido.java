@@ -15,6 +15,8 @@ import com.durandsuppicich.danmspedidos.domain.Producto;
 import com.durandsuppicich.danmspedidos.exception.BadRequestException;
 import com.durandsuppicich.danmspedidos.exception.NotFoundException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +26,9 @@ public class ServicioPedido implements IServicioPedido {
     private final IServicioMaterial servicioMaterial;
     private final PedidoJpaRepository pedidoRepository;
     private final DetallePedidoJpaRepository detallePedidoRepository;
+
+    @Autowired 
+    private JmsTemplate jmsTemplate; 
 
     public ServicioPedido(IServicioCliente servicioCliente, IServicioMaterial servicioMaterial,
             PedidoJpaRepository pedidoRepository, DetallePedidoJpaRepository detallePedidoRepository) {
@@ -162,6 +167,7 @@ public class ServicioPedido implements IServicioPedido {
                     if (nuevoSaldo >= 0 || this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo)) {
 
                         pedido.setEstado(new EstadoPedido(5, "Aceptado"));
+                        jmsTemplate.convertAndSend("COLA_PEDIDOS", pedido);
 
                     } else {
 
