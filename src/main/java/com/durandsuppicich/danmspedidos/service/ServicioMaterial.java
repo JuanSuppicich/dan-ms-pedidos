@@ -9,7 +9,7 @@ public class ServicioMaterial implements IServicioMaterial {
     
     @Override
     public Integer stockDisponible(Producto producto) {
-        return Integer.MAX_VALUE;
+        return Integer.MAX_VALUE; //TODO completar metodo
     }
 
 }

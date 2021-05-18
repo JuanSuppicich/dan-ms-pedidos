@@ -167,7 +167,7 @@ public class ServicioPedido implements IServicioPedido {
                     if (nuevoSaldo >= 0 || this.esDeBajoRiesgo(pedido.getObra(), nuevoSaldo)) {
 
                         pedido.setEstado(new EstadoPedido(5, "Aceptado"));
-                        jmsTemplate.convertAndSend("COLA_PEDIDOS", pedido);
+                        jmsTemplate.convertAndSend("COLA_PEDIDOS", pedido.getId());
 
                     } else {
 
