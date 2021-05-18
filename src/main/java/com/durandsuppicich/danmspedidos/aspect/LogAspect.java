@@ -25,16 +25,16 @@ public class LogAspect {
 
     @Before("metodosServicios() || metodosRepositorios()" )
     public void hacerAntes(JoinPoint joinPoint) {
-        logger.debug("Metodo a ejecutar: " + joinPoint.getSignature().getName() + 
-        " en: " + joinPoint.getTarget().getClass() + 
-        " con args: " + Arrays.toString(joinPoint.getArgs()));
+        logger.debug(joinPoint.getTarget().getClass() + 
+            ". METODO A EJECUTAR: " + joinPoint.getSignature().getName() + 
+            ". ARGUMENTOS: " + Arrays.toString(joinPoint.getArgs()));
     }
 
     @After("metodosServicios() || metodosRepositorios()")
     public void hacerDespues(JoinPoint joinPoint) {
-        logger.debug("Metodo ejecutado: " + joinPoint.getSignature().getName() + 
-        " en: " + joinPoint.getTarget().getClass() + 
-        " con args: " + Arrays.toString(joinPoint.getArgs()));
+        logger.debug(joinPoint.getTarget().getClass() + 
+            ". METODO EJECUTADO: " + joinPoint.getSignature().getName() + 
+            " .ARGUMENTOS: " + Arrays.toString(joinPoint.getArgs()));
     }
     
 }
