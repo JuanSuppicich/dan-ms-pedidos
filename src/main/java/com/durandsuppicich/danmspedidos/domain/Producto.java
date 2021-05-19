@@ -1,17 +1,18 @@
 package com.durandsuppicich.danmspedidos.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-//Tiene que ser READ ONLY
 @Entity
-@Table(name = "PRODUCTO", schema = "MS_PEDIDOS")
-public class Producto {
+@Table(name = "MATERIAL", schema = "MS_MATERIALES")
+public class Producto implements Serializable {
 
     @Id
-    @Column(name = "ID_PRODUCTO")
+    @Column(name = "ID_MATERIAL")
     private Integer id;
 
     @Column(nullable = false, length = 32)

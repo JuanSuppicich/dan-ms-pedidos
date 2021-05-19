@@ -1,5 +1,6 @@
 package com.durandsuppicich.danmspedidos.domain;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "PEDIDO", schema = "MS_PEDIDOS")
-public class Pedido {
+public class Pedido implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

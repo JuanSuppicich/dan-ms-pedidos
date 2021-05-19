@@ -12,6 +12,7 @@ import com.durandsuppicich.danmspedidos.service.IServicioPedido;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -105,8 +106,23 @@ public class PedidoRest {
         }
     }
 
+    @GetMapping(params = "estado")
+    @ApiOperation(value = "Busca pedidos por estado")
+    public ResponseEntity<List<Pedido>> pedidosPorEstado(@RequestParam(name = "estado") String estado) {
+
+        List<Pedido> body = servicioPedido.pedidosPorEstado(estado);
+        return ResponseEntity.ok(body);
+    }
+    
+    @GetMapping(params = "cuit")
+    @ApiOperation(value = "Busca pedidos por cuit de cliente")
+    public ResponseEntity<List<Pedido>> pedidosPorCuit(@RequestParam(name = "cuit") String cuit) {
+
+        List<Pedido> body = servicioPedido.pedidosPorCuit(cuit);
+        return ResponseEntity.ok(body);
+    }
     /*
-     * Falta buscar pedido por id de cliente o cuit
+        Falta buscar pedido por id de cliente o cuit
     */
 
     @GetMapping(path = "/{idPedido}/detalle/{id}")
@@ -128,6 +144,22 @@ public class PedidoRest {
     public ResponseEntity<Pedido> actualizar(@RequestBody Pedido pedido, @PathVariable Integer id) {
 
         servicioPedido.actualizar(id, pedido);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(path = "/{idPedido}/detalle/{id}")
+    @ApiOperation(value = "Actualiza un detalle pedido en base al id")
+    public ResponseEntity<Pedido> actualizarDetalle(@RequestBody DetallePedido detalle, @PathVariable Integer idPedido, @PathVariable Integer id) {
+
+        servicioPedido.actualizarDetalle(idPedido, id, detalle);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(path = "/{id}")
+    @ApiOperation(value = "Actualiza el estado de un pedido")
+    public ResponseEntity<Pedido> actualizarEstado(@RequestBody Pedido pedidoParcial, @PathVariable Integer id) {
+        
+        servicioPedido.actualizarEstado(id, pedidoParcial);
         return ResponseEntity.ok().build();
     }
 
