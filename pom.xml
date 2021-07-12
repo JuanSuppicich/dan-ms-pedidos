@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.durand-suppicich</groupId>
-	<artifactId>dan-ms-pedidos</artifactId>
+	<artifactId>dan-ms-orders</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>dan-ms-pedidos</name>
+	<name>dan-ms-orders</name>
 	<description>Laboratorio DAM API Pedidos</description>
 	<properties>
 		<java.version>11</java.version>
@@ -41,16 +41,6 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>3.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>frsf.isi.dan</groupId>
-			<artifactId>memory-repo</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugins</groupId>
