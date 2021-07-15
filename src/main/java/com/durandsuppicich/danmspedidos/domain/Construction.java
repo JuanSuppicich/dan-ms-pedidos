@@ -1,7 +1,6 @@
 package com.durandsuppicich.danmspedidos.domain;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,19 +40,5 @@ public class Construction implements Serializable {
                 "id=" + id +
                 ", description='" + description + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Construction that = (Construction) o;
-        return id.equals(that.id)
-                && description.equals(that.description);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, description);
     }
 }

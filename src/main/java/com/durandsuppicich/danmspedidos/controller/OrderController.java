@@ -3,13 +3,18 @@ package com.durandsuppicich.danmspedidos.controller;
 import java.util.List;
 import java.util.Optional;
 
-import com.durandsuppicich.danmspedidos.domain.OrderItem;
 import com.durandsuppicich.danmspedidos.domain.Order;
-import com.durandsuppicich.danmspedidos.exception.BadRequestException;
+import com.durandsuppicich.danmspedidos.dto.order.OrderDto;
+import com.durandsuppicich.danmspedidos.dto.order.OrderPatchDto;
+import com.durandsuppicich.danmspedidos.dto.order.OrderPostDto;
+import com.durandsuppicich.danmspedidos.dto.order.OrderPutDto;
 import com.durandsuppicich.danmspedidos.exception.NotFoundException;
+import com.durandsuppicich.danmspedidos.mapper.IOrderMapper;
 import com.durandsuppicich.danmspedidos.service.IOrderService;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,84 +29,70 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+
 @RestController
+@Validated
 @RequestMapping("/api/order")
 @Api(value = "OrderController")
 public class OrderController {
 
     private final IOrderService orderService;
+    private final IOrderMapper orderMapper;
 
-    public OrderController(IOrderService orderService) {
+    public OrderController(
+            IOrderService orderService,
+            IOrderMapper orderMapper) {
         this.orderService = orderService;
+        this.orderMapper = orderMapper;
     }
 
     @PostMapping
     @ApiOperation(value = "Creates a new order")
-    public ResponseEntity<Order> post(@RequestBody Order order) {
+    public ResponseEntity<OrderDto> post(@RequestBody @Valid OrderPostDto orderDto) {
 
-        List<OrderItem> items = order.getItems();
+        Order order = orderService.post(orderMapper.map(orderDto));
+        OrderDto body = orderMapper.mapToDto(order);
 
-        if ((items != null) && (items.size() > 0)) {
-
-            if (order.getConstruction() != null) {
-
-                boolean validItems = items
-                        .stream()
-                        .allMatch(oi -> oi.getProduct() != null && oi.getQuantity() != null && oi.getQuantity() > 0);
-
-                if (validItems) {
-
-                    Order body = orderService.post(order);
-                    return ResponseEntity.ok(body);
-
-                } else {
-                    throw new BadRequestException("Detalles: " + items); // TODO exception (change this)
-                }
-            } else {
-                throw new BadRequestException("Obra: " + order.getConstruction()); // TODO exception (change this)
-            }
-        } else {
-            throw new BadRequestException("Detalles: " + items); // TODO exception (change this)
-        }
+        return ResponseEntity.ok(body);
     }
-
-//    @GetMapping
-//    @ApiOperation(value = "Retrieves all orders")
-//    public ResponseEntity<List<Order>> getAll() {
-//
-//        List<Order> body = orderService.getAll();
-//
-//        return ResponseEntity.ok(body);
-//    }
 
     @GetMapping
     @ApiOperation(value = "Retrieves all orders")
-    public String getAll() {
-        return "Order Controller";
+    public ResponseEntity<List<OrderDto>> getAll() {
+
+        List<Order> orders = orderService.getAll();
+        List<OrderDto> body = orderMapper.mapToDto(orders);
+
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(path = "/{id}")
-    @ApiOperation(value = "Retrieves a order based on the given id")
-    public ResponseEntity<Order> getById(@PathVariable Integer id) {
+    @ApiOperation(value = "Retrieves an order based on the given id")
+    public ResponseEntity<OrderDto> getById(@PathVariable @Positive Integer id) {
 
-        Optional<Order> body = orderService.getById(id);
+        Optional<Order> optOrder = orderService.getById(id);
 
-        if (body.isPresent()) {
-            return ResponseEntity.ok(body.get());
+        if (optOrder.isPresent()) {
+            OrderDto body = orderMapper.mapToDto(optOrder.get());
+            return ResponseEntity.ok(body);
         } else {
             throw new NotFoundException("Pedido no encontrado. Id: " + id); // TODO exception (change this)
         }
     }
 
     @GetMapping(params = "constructionId")
-    @ApiOperation(value = "Retrieves a order based on the given construction site id")
-    public ResponseEntity<Order> getByConstructionId(
-            @RequestParam(name = "constructionId") Integer constructionId) {
+    @ApiOperation(value = "Retrieves an order based on the given construction site id")
+    public ResponseEntity<OrderDto> getByConstructionId(
+            @RequestParam(name = "constructionId") @Positive Integer constructionId) {
 
-        Optional<Order> body = orderService.getByConstructionId(constructionId);
+        Optional<Order> optOrder = orderService.getByConstructionId(constructionId);
 
-        if (body.isPresent()) {
-            return ResponseEntity.ok(body.get());
+        if (optOrder.isPresent()) {
+            OrderDto body = orderMapper.mapToDto(optOrder.get());
+            return ResponseEntity.ok(body);
         } else {
             throw new NotFoundException("Pedido no encontrado. Id Obra: " + constructionId); // TODO exception (change this)
         }
@@ -109,51 +100,58 @@ public class OrderController {
 
     @GetMapping(params = "state")
     @ApiOperation(value = "Retrieves an order list based on the given order state")
-    public ResponseEntity<List<Order>> getByState(@RequestParam(name = "state") String state) {
+    public ResponseEntity<List<OrderDto>> getByState(
+            @RequestParam(name = "state") @NotBlank @Length(max = 32) String state) {
 
-        List<Order> body = orderService.getByState(state);
+        List<Order> orders = orderService.getByState(state);
+        List<OrderDto> body = orderMapper.mapToDto(orders);
 
         return ResponseEntity.ok(body);
     }
     
     @GetMapping(params = "cuit")
     @ApiOperation(value = "Retrieves an order list based on the given customer cuit")
-    public ResponseEntity<List<Order>> getByCuit(@RequestParam(name = "cuit") String cuit) {
+    public ResponseEntity<List<OrderDto>> getByCuit(
+            @RequestParam(name = "cuit") @NotBlank @Length(min = 11, max = 11) String cuit) {
 
-        List<Order> body = orderService.getByCuit(cuit);
+        List<Order> orders = orderService.getByCuit(cuit);
+        List<OrderDto> body = orderMapper.mapToDto(orders);
 
         return ResponseEntity.ok(body);
     }
-    /*
-        Falta buscar pedido por id de cliente o cuit
-    */
 
     @PutMapping(path = "/{id}")
     @ApiOperation(value = "Updates an order based on the given id")
-    public ResponseEntity<Order> put(@RequestBody Order order, @PathVariable Integer id) {
+    public ResponseEntity<?> put(
+            @RequestBody @Valid OrderPutDto orderDto,
+            @PathVariable @Positive Integer id) {
+
+        Order order = orderMapper.map(orderDto);
 
         orderService.put(order, id);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(path = "/{id}")
     @ApiOperation(value = "Updates the order state based on the given id")
-    public ResponseEntity<Order> patch(@RequestBody Order partialOrder, @PathVariable Integer id) {
-        
-        orderService.patch(partialOrder, id);
+    public ResponseEntity<?> patch(
+            @RequestBody @Valid OrderPatchDto orderDto,
+            @PathVariable @Positive Integer id) {
 
-        return ResponseEntity.ok().build();
+        Order order = orderMapper.map(orderDto);
+
+        orderService.patch(order, id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(path = "/{id}")
     @ApiOperation(value = "Deletes an order based on the given id")
-    public ResponseEntity<Order> delete(@PathVariable Integer id) {
+    public ResponseEntity<?> delete(@PathVariable @Positive Integer id) {
 
         orderService.delete(id);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
-
-
 }

@@ -1,7 +1,6 @@
 package com.durandsuppicich.danmspedidos.domain;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -53,20 +52,5 @@ public class Product implements Serializable {
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Product product = (Product) o;
-        return id.equals(product.id)
-                && description.equals(product.description)
-                && price.equals(product.price);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, description, price);
     }
 }

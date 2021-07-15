@@ -88,7 +88,7 @@ public class OrderService implements IOrderService {
 
             Order order = optOrder.get();
 
-            if (orderState.getState().equals("Confirmado")) {
+            if (orderState.getDescription().equals("Confirmado")) {
 
                 boolean availableStock = order
                         .getItems()

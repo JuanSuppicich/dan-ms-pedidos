@@ -1,7 +1,6 @@
 package com.durandsuppicich.danmspedidos.domain;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,13 +19,13 @@ public class OrderState implements Serializable {
     private Integer id;
 
     @Column(nullable = false, unique = true)
-    private String state;
+    private String description;
 
     public OrderState() { }
 
-    public OrderState(Integer id, String state) {
+    public OrderState(Integer id, String description) {
         this.id = id;
-        this.state = state;
+        this.description = description;
     }
 
     public Integer getId() {
@@ -37,33 +36,19 @@ public class OrderState implements Serializable {
         this.id = id;
     }
 
-    public String getState() {
-        return state;
+    public String getDescription() {
+        return description;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
     public String toString() {
         return "OrderState{" +
                 "id=" + id +
-                ", state='" + state + '\'' +
+                ", description='" + description + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OrderState that = (OrderState) o;
-        return id.equals(that.id)
-                && state.equals(that.state);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, state);
     }
 }
