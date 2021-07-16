@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "construction", schema = "ms_users")
-public class Construction implements Serializable {
+public class Construction {
 
     @Id
     @Column(name = "construction_id")

@@ -4,7 +4,7 @@ import com.durandsuppicich.danmspedidos.domain.OrderItem;
 import com.durandsuppicich.danmspedidos.dto.item.OrderItemDto;
 import com.durandsuppicich.danmspedidos.dto.item.OrderItemPostDto;
 import com.durandsuppicich.danmspedidos.dto.item.OrderItemPutDto;
-import com.durandsuppicich.danmspedidos.exception.NotFoundException;
+import com.durandsuppicich.danmspedidos.exception.validation.IdsNotMatchException;
 import com.durandsuppicich.danmspedidos.mapper.IOrderItemMapper;
 import com.durandsuppicich.danmspedidos.service.IOrderItemService;
 import io.swagger.annotations.Api;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.Optional;
 
 @RestController
 @Validated
@@ -59,17 +58,11 @@ public class OrderItemController {
             @PathVariable @Positive Integer orderId,
             @PathVariable @Positive Integer id) {
 
-        Optional<OrderItem> optOrderItem = orderItemService.getById(orderId, id);
+        OrderItem orderItem = orderItemService.getById(orderId, id);
 
-        if (optOrderItem.isPresent()) {
+        OrderItemDto body = orderItemMapper.mapToDto(orderItem);
 
-            OrderItemDto body = orderItemMapper.mapToDto(optOrderItem.get());
-
-            return ResponseEntity.ok(body);
-        } else {
-            throw new NotFoundException("Detalle no encontrado. Id Pedido: " +
-                    orderId + ", Id Detalle: " + id); // TODO exception (change this)
-        }
+        return ResponseEntity.ok(body);
     }
 
     @PutMapping(path = "/{id}")
@@ -78,6 +71,8 @@ public class OrderItemController {
             @RequestBody @Valid OrderItemPutDto orderItemDto,
             @PathVariable @Positive Integer orderId,
             @PathVariable @Positive Integer id) {
+
+        if (!orderItemDto.getId().equals(id)) { throw new IdsNotMatchException(); }
 
         OrderItem orderItem = orderItemMapper.map(orderItemDto);
 

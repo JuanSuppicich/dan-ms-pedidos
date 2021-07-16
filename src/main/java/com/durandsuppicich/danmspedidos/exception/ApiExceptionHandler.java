@@ -2,6 +2,7 @@ package com.durandsuppicich.danmspedidos.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.durandsuppicich.danmspedidos.exception.http.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,8 +17,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({ NotFoundException.class })
     @ResponseBody
-    public MensajeError notFoundRequest(HttpServletRequest request, Exception exception) {
-        return new MensajeError(exception, request.getRequestURI());
+    public ErrorMessage notFoundRequest(HttpServletRequest request, Exception exception) {
+        return new ErrorMessage(exception, request.getRequestURI());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -30,23 +31,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     // org.springframework.web.bind.MissingServletRequestParameterException.class
     })
     @ResponseBody
-    public MensajeError badRequest(HttpServletRequest request, Exception exception) {
-        return new MensajeError(exception, request.getRequestURI());
+    public ErrorMessage badRequest(HttpServletRequest request, Exception exception) {
+        return new ErrorMessage(exception, request.getRequestURI());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler({ ForbiddenException.class })
     @ResponseBody
-    public MensajeError forbiddenRequest(HttpServletRequest request, Exception exception) {
-        return new MensajeError(exception, request.getRequestURI());
+    public ErrorMessage forbiddenRequest(HttpServletRequest request, Exception exception) {
+        return new ErrorMessage(exception, request.getRequestURI());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler({ ConflictException.class, DataIntegrityViolationException.class })
 
     @ResponseBody
-    public MensajeError conflic(HttpServletRequest request, Exception exception) {
-        return new MensajeError(exception, request.getRequestURI());
+    public ErrorMessage conflic(HttpServletRequest request, Exception exception) {
+        return new ErrorMessage(exception, request.getRequestURI());
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -59,8 +60,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler({ Exception.class })
     @ResponseBody
-    public MensajeError fatalErrorUnexpectedException(HttpServletRequest request, Exception exception) {
-        return new MensajeError(exception, request.getRequestURI());
+    public ErrorMessage fatalErrorUnexpectedException(HttpServletRequest request, Exception exception) {
+        return new ErrorMessage(exception, request.getRequestURI());
     }
 
 }

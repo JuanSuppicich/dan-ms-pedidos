@@ -16,7 +16,7 @@ import com.durandsuppicich.danmspedidos.domain.OrderItem;
 import com.durandsuppicich.danmspedidos.domain.Construction;
 import com.durandsuppicich.danmspedidos.domain.Order;
 import com.durandsuppicich.danmspedidos.domain.Product;
-import com.durandsuppicich.danmspedidos.exception.BadRequestException;
+import com.durandsuppicich.danmspedidos.exception.http.BadRequestException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

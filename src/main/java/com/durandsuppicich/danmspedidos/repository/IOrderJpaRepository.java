@@ -1,7 +1,6 @@
 package com.durandsuppicich.danmspedidos.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.durandsuppicich.danmspedidos.domain.Order;
 
@@ -12,9 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IOrderJpaRepository extends JpaRepository<Order, Integer> {
 
-    Optional<Order> findByConstruction_Id(Integer constructionId);
+    List<Order> findByConstruction_Id(Integer constructionId);
 
-    List<Order> findByState_state(String state);
+    List<Order> findByState_description(String state);
 
     // TODO check
     @Query(value = "SELECT * " +

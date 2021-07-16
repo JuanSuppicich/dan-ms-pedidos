@@ -1,17 +1,15 @@
 package com.durandsuppicich.danmspedidos.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.durandsuppicich.danmspedidos.domain.Construction;
 import com.durandsuppicich.danmspedidos.domain.OrderState;
 import com.durandsuppicich.danmspedidos.domain.Product;
+import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
-import com.durandsuppicich.danmspedidos.exception.BadRequestException;
-import com.durandsuppicich.danmspedidos.exception.NotFoundException;
+import com.durandsuppicich.danmspedidos.exception.http.BadRequestException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +19,17 @@ public class OrderService implements IOrderService {
     private final IOrderJpaRepository orderRepository;
     private final ICustomerService customerService;
     private final IProductService productService;
-
-    @Autowired 
-    private JmsTemplate jmsTemplate;
+    private final JmsTemplate jmsTemplate;
 
     public OrderService(
             IOrderJpaRepository orderRepository,
             ICustomerService customerService,
-            IProductService productService) {
+            IProductService productService,
+            JmsTemplate jmsTemplate) {
         this.orderRepository = orderRepository;
         this.customerService = customerService;
         this.productService = productService;
+        this.jmsTemplate = jmsTemplate;
     }
 
     @Override
@@ -48,18 +46,20 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Optional<Order> getById(Integer id) {
-        return orderRepository.findById(id);
+    public Order getById(Integer id) {
+        return orderRepository
+                .findById(id)
+                .orElseThrow(() -> new OrderIdNotFoundException(id));
     }
 
     @Override
-    public Optional<Order> getByConstructionId(Integer constructionId) {
+    public List<Order> getByConstructionId(Integer constructionId) {
         return orderRepository.findByConstruction_Id(constructionId);
     }
 
     @Override
     public List<Order> getByState(String state) {
-        return orderRepository.findByState_state(state);
+        return orderRepository.findByState_description(state);
     }
 
     @Override
@@ -70,68 +70,24 @@ public class OrderService implements IOrderService {
     @Override
     public void put(Order order, Integer id) {
 
-        if (orderRepository.existsById(id)) {
-            orderRepository.save(order);
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + id); // TODO exception (change this)
-        }
+        orderRepository
+                .findById(id)
+                .map(o -> {
+                    o.setShippingDate(order.getShippingDate());
+                    o.setConstruction(order.getConstruction());
+                    return orderRepository.save(o);
+                })
+                .orElseThrow(() -> new OrderIdNotFoundException(id));
     }
 
     @Override
-    public void patch(Order partialOrder, Integer id) { // TODO check
+    public void patch(Order partialOrder, Integer id) {
 
-        Optional<Order> optOrder = orderRepository.findById(id);
-
-        OrderState orderState = partialOrder.getState();
-
-        if (optOrder.isPresent()) {
-
-            Order order = optOrder.get();
-
-            if (orderState.getDescription().equals("Confirmado")) {
-
-                boolean availableStock = order
-                        .getItems()
-                        .stream()
-                        .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
-
-                double totalPrice = order
-                        .getItems()
-                        .stream()
-                        .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
-                        .sum();
-
-                Double customerBalance = customerService.getBalance(order.getConstruction());
-
-                double newBalance = customerBalance - totalPrice;
-
-                if (availableStock) {
-
-                    if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
-
-                        order.setState(new OrderState(5, "Aceptado"));
-
-                        jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
-
-                    } else {
-                        order.setState(new OrderState(6, "Rechazado"));
-
-                        orderRepository.save(order);
-
-                        throw new BadRequestException("No tiene aprobacion crediticia"); // TODO exception (change this)
-                    }
-                } else {
-                    order.setState(new OrderState(3, "Pendiente"));
-                }
-            } else {
-                order.setState(orderState);
-            }
-
-            orderRepository.save(order);
-
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + id); // TODO exception (change this)
-        }
+        orderRepository
+                .findById(id)
+                .ifPresentOrElse(
+                        o -> updateOrderState(o, partialOrder.getState()),
+                        () -> {throw new OrderIdNotFoundException(id);});
     }
 
     @Override
@@ -140,8 +96,48 @@ public class OrderService implements IOrderService {
         if (orderRepository.existsById(id)) {
             orderRepository.deleteById(id);
         } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + id); // TODO exception (change this)
+            throw new OrderIdNotFoundException(id);
         }
+    }
+
+    private void updateOrderState(Order order, OrderState orderState) {
+
+        if (orderState.getDescription().equals("Confirmado")) {
+
+            boolean availableStock = order
+                    .getItems()
+                    .stream()
+                    .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
+
+            double totalPrice = order
+                    .getItems()
+                    .stream()
+                    .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
+                    .sum();
+
+            Double customerBalance = customerService.getBalance(order.getConstruction());
+
+            double newBalance = customerBalance - totalPrice;
+
+            if (availableStock) {
+
+                if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
+
+                    order.setState(new OrderState(5, "Aceptado"));
+
+                    jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
+
+                } else {
+                    order.setState(new OrderState(6, "Rechazado"));
+                }
+            } else {
+                order.setState(new OrderState(3, "Pendiente"));
+            }
+        } else {
+            order.setState(orderState);
+        }
+
+        orderRepository.save(order);
     }
 
     private Boolean verifyStock(Product product, Integer quantity) {

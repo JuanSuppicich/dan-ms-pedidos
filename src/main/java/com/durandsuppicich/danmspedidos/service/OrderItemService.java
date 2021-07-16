@@ -2,14 +2,14 @@ package com.durandsuppicich.danmspedidos.service;
 
 import com.durandsuppicich.danmspedidos.domain.Order;
 import com.durandsuppicich.danmspedidos.domain.OrderItem;
-import com.durandsuppicich.danmspedidos.exception.NotFoundException;
+import com.durandsuppicich.danmspedidos.exception.item.OrderItemIdNotFoundException;
+import com.durandsuppicich.danmspedidos.exception.item.OrderItemNotFoundException;
+import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.repository.IOrderItemJpaRepository;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 @Service
@@ -18,7 +18,10 @@ public class OrderItemService implements IOrderItemService {
     private final IOrderJpaRepository orderRepository;
     private final IOrderItemJpaRepository orderItemRepository;
 
-    public OrderItemService(IOrderJpaRepository orderRepository, IOrderItemJpaRepository orderItemRepository) {
+    public OrderItemService(
+            IOrderJpaRepository orderRepository,
+            IOrderItemJpaRepository orderItemRepository) {
+
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
     }
@@ -26,83 +29,51 @@ public class OrderItemService implements IOrderItemService {
     @Override
     public Order post(OrderItem orderItem, Integer orderId) {
 
-        Optional<Order> optOrder = orderRepository.findById(orderId);
-
-        if (optOrder.isPresent()) {
-
-            Order order = optOrder.get();
-            order.addOrderItem(orderItem);
-
-            return orderRepository.save(order);
-
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + orderId); // TODO exception (change this)
-        }
+        return orderRepository
+                .findById(orderId)
+                .map(o -> {
+                    o.addOrderItem(orderItem);
+                    return orderRepository.save(o);
+                })
+                .orElseThrow(() -> new OrderIdNotFoundException(orderId));
     }
 
     @Override
-    public Optional<OrderItem> getById(Integer orderId, Integer id) {
+    public OrderItem getById(Integer orderId, Integer id) {
 
-        Optional<Order> optOrder = orderRepository.findById(orderId);
-
-        if (optOrder.isPresent()) {
-
-            return optOrder
-                    .get()
-                    .getItems()
-                    .stream()
-                    .filter(oi -> oi.getId().equals(id))
-                    .findFirst();
-
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + orderId); // TODO exception (change this)
-        }
+        return orderItemRepository
+                .findByIdAndOrderId(id, orderId)
+                .orElseThrow(OrderItemNotFoundException::new);
     }
 
     @Override
     public void put(OrderItem orderItem, Integer orderId, Integer id) {
 
-        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        orderRepository
+                .findById(orderId)
+                .ifPresentOrElse(o -> {
 
-        if (orderOpt.isPresent()) {
+                    List<OrderItem> items = o.getItems();
 
-            Order order = orderOpt.get();
-            List<OrderItem> items = order.getItems();
+                    IntStream.range(0, items.size())
+                            .filter(i -> items.get(i).getId().equals(id))
+                            .findFirst()
+                            .ifPresentOrElse(i -> {
 
-            OptionalInt optIndex = IntStream.range(0, items.size())
-                    .filter(i -> items.get(i).getId().equals(id))
-                    .findFirst();
+                                items.get(i).setQuantity(orderItem.getQuantity());
+                                orderRepository.save(o);
 
-            if (optIndex.isPresent()) {
-
-                items.set(optIndex.getAsInt(), orderItem);
-
-                orderRepository.save(order);
-
-            } else {
-                throw new NotFoundException("Detalle inexistente. Id: " + id); // TODO exception (change this)
-            }
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + orderId); // TODO exception (change this)
-        }
+                            }, () -> {throw new OrderItemIdNotFoundException(id);});
+                }, () -> {throw new OrderIdNotFoundException(id);});
     }
 
     @Override
     public void delete(Integer orderId, Integer id) {
 
-        Optional<Order> optOrder = orderRepository.findById(orderId);
-
-        if (optOrder.isPresent()) {
-
-            if (orderItemRepository.existsById(id)) {
-
-                orderItemRepository.deleteById(id);
-
-            } else {
-                throw new NotFoundException("Detalle inexistente. Id: " + orderId); // TODO exception (change this)
-            }
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + orderId); // TODO exception (change this)
-        }
+        orderItemRepository
+                .findByIdAndOrderId(id, orderId)
+                .ifPresentOrElse(
+                        (oi) -> orderItemRepository.deleteById(id),
+                        () -> {throw new OrderItemNotFoundException();});
     }
 }

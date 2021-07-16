@@ -1,14 +1,13 @@
 package com.durandsuppicich.danmspedidos.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.durandsuppicich.danmspedidos.domain.Order;
 import com.durandsuppicich.danmspedidos.dto.order.OrderDto;
 import com.durandsuppicich.danmspedidos.dto.order.OrderPatchDto;
 import com.durandsuppicich.danmspedidos.dto.order.OrderPostDto;
 import com.durandsuppicich.danmspedidos.dto.order.OrderPutDto;
-import com.durandsuppicich.danmspedidos.exception.NotFoundException;
+import com.durandsuppicich.danmspedidos.exception.validation.IdsNotMatchException;
 import com.durandsuppicich.danmspedidos.mapper.IOrderMapper;
 import com.durandsuppicich.danmspedidos.service.IOrderService;
 
@@ -73,29 +72,21 @@ public class OrderController {
     @ApiOperation(value = "Retrieves an order based on the given id")
     public ResponseEntity<OrderDto> getById(@PathVariable @Positive Integer id) {
 
-        Optional<Order> optOrder = orderService.getById(id);
+        Order order = orderService.getById(id);
+        OrderDto body = orderMapper.mapToDto(order);
 
-        if (optOrder.isPresent()) {
-            OrderDto body = orderMapper.mapToDto(optOrder.get());
-            return ResponseEntity.ok(body);
-        } else {
-            throw new NotFoundException("Pedido no encontrado. Id: " + id); // TODO exception (change this)
-        }
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(params = "constructionId")
     @ApiOperation(value = "Retrieves an order based on the given construction site id")
-    public ResponseEntity<OrderDto> getByConstructionId(
+    public ResponseEntity<List<OrderDto>> getByConstructionId(
             @RequestParam(name = "constructionId") @Positive Integer constructionId) {
 
-        Optional<Order> optOrder = orderService.getByConstructionId(constructionId);
+        List<Order> orders = orderService.getByConstructionId(constructionId);
+        List<OrderDto> body = orderMapper.mapToDto(orders);
 
-        if (optOrder.isPresent()) {
-            OrderDto body = orderMapper.mapToDto(optOrder.get());
-            return ResponseEntity.ok(body);
-        } else {
-            throw new NotFoundException("Pedido no encontrado. Id Obra: " + constructionId); // TODO exception (change this)
-        }
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(params = "state")
@@ -125,6 +116,8 @@ public class OrderController {
     public ResponseEntity<?> put(
             @RequestBody @Valid OrderPutDto orderDto,
             @PathVariable @Positive Integer id) {
+
+        if (!orderDto.getId().equals(id)) { throw new IdsNotMatchException(); }
 
         Order order = orderMapper.map(orderDto);
 

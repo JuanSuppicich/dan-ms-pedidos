@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "order_state", schema = "ms_orders")
-public class OrderState implements Serializable {
+public class OrderState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

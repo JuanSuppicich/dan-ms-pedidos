@@ -11,9 +11,9 @@ public interface IOrderService {
 
     List<Order> getAll();
 
-    Optional<Order> getById(Integer id);
+    Order getById(Integer id);
 
-    Optional<Order> getByConstructionId(Integer constructionId);
+    List<Order> getByConstructionId(Integer constructionId);
 
     List<Order> getByState(String state);
 

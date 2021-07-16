@@ -3,7 +3,7 @@ package com.durandsuppicich.danmspedidos.exception;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class MensajeError {
+public class ErrorMessage {
 
     private String excepcion;
 
@@ -13,10 +13,10 @@ public class MensajeError {
 
     private Instant timeStamp;
 
-    public MensajeError() {
+    public ErrorMessage() {
     }
 
-    public MensajeError(Exception excepcion, String path) {
+    public ErrorMessage(Exception excepcion, String path) {
         this.excepcion = excepcion.getClass().getSimpleName();
         this.mensaje = excepcion.getMessage();
         this.path = path;
