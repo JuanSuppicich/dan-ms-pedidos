@@ -1,7 +1,5 @@
 package com.durandsuppicich.danmspedidos.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -16,7 +14,7 @@ public class Product {
     private Integer id;
 
     @Column(nullable = false, length = 32)
-    private String description;
+    private String name;
 
     @Column(nullable = false)
     private Double price;
@@ -29,12 +27,12 @@ public class Product {
         this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Double getPrice() {
@@ -49,7 +47,7 @@ public class Product {
     public String toString() {
         return "Product{" +
                 "id=" + id +
-                ", description='" + description + '\'' +
+                ", name='" + name + '\'' +
                 ", price=" + price +
                 '}';
     }

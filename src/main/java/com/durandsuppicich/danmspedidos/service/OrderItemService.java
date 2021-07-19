@@ -47,6 +47,11 @@ public class OrderItemService implements IOrderItemService {
     }
 
     @Override
+    public List<OrderItem> getByOrderId(Integer orderId) {
+        return orderItemRepository.findByOrderId(orderId);
+    }
+
+    @Override
     public void put(OrderItem orderItem, Integer orderId, Integer id) {
 
         orderRepository

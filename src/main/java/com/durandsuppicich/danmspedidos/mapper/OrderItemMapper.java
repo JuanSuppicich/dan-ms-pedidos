@@ -6,6 +6,9 @@ import com.durandsuppicich.danmspedidos.dto.item.OrderItemDto;
 import com.durandsuppicich.danmspedidos.dto.item.OrderItemPostDto;
 import com.durandsuppicich.danmspedidos.dto.item.OrderItemPutDto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OrderItemMapper implements IOrderItemMapper {
 
     @Override
@@ -39,8 +42,19 @@ public class OrderItemMapper implements IOrderItemMapper {
         orderItemDto.setId(orderItem.getId());
         orderItemDto.setQuantity(orderItem.getQuantity());
         orderItemDto.setPrice(orderItem.getPrice());
-        orderItemDto.setProductDescription(orderItem.getProduct().getDescription());
+        orderItemDto.setProductName(orderItem.getProduct().getName());
 
         return orderItemDto;
+    }
+
+    @Override
+    public List<OrderItemDto> mapToDto(List<OrderItem> items) {
+        List<OrderItemDto> orderItemDtos = new ArrayList<>();
+
+        for (OrderItem orderItem : items) {
+            orderItemDtos.add(mapToDto(orderItem));
+        }
+
+        return orderItemDtos;
     }
 }

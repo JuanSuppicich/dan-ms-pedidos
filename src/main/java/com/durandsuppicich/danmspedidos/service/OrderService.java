@@ -8,7 +8,6 @@ import com.durandsuppicich.danmspedidos.domain.Product;
 import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
-import com.durandsuppicich.danmspedidos.exception.http.BadRequestException;
 
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -125,7 +124,7 @@ public class OrderService implements IOrderService {
 
                     order.setState(new OrderState(5, "Aceptado"));
 
-                    jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
+                    // TODO jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
 
                 } else {
                     order.setState(new OrderState(6, "Rechazado"));

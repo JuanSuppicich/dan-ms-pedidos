@@ -11,8 +11,12 @@ import java.util.List;
 public interface IOrderMapper {
 
     Order map(OrderPostDto orderDto);
+
     Order map(OrderPutDto orderDto);
+
     Order map(OrderPatchDto orderDto);
+
     OrderDto mapToDto(Order order);
+
     List<OrderDto> mapToDto(List<Order> orders);
 }

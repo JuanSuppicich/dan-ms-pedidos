@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.List;
 
 @RestController
 @Validated
@@ -50,6 +51,18 @@ public class OrderItemController {
         orderItemService.post(orderItem, orderId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    @ApiOperation(value = "Retrieves a list of order items based on the given order id")
+    public ResponseEntity<List<OrderItemDto>> getByOrderId(
+            @PathVariable @Positive Integer orderId) {
+
+        List<OrderItem> items = orderItemService.getByOrderId(orderId);
+
+        List<OrderItemDto> body = orderItemMapper.mapToDto(items);
+
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping(path = "/{id}")

@@ -1,5 +1,6 @@
 package com.durandsuppicich.danmspedidos.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import com.durandsuppicich.danmspedidos.domain.Order;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -55,7 +57,13 @@ public class OrderController {
         Order order = orderService.post(orderMapper.map(orderDto));
         OrderDto body = orderMapper.mapToDto(order);
 
-        return ResponseEntity.ok(body);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(body.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(body);
     }
 
     @GetMapping
