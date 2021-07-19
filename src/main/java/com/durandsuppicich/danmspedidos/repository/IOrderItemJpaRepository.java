@@ -19,7 +19,6 @@ public interface IOrderItemJpaRepository extends JpaRepository<OrderItem, Intege
     )
     List<OrderItem> findByOrderId(Integer orderId);
 
-    // TODO check
     @Query(value = "SELECT * " +
             "FROM ms_orders.order o " +
             "JOIN ms_orders.order_item oi ON o.order_id = oi.order_id " +

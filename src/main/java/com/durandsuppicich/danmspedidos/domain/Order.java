@@ -1,6 +1,7 @@
 package com.durandsuppicich.danmspedidos.domain;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -51,7 +52,7 @@ public class Order {
     }
 
     public void setShippingDate(Instant shippingDate) {
-        this.shippingDate = shippingDate;
+        this.shippingDate = shippingDate.truncatedTo(ChronoUnit.DAYS);
     }
 
     public OrderState getState() {

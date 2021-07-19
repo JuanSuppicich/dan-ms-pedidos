@@ -6,9 +6,11 @@ import com.durandsuppicich.danmspedidos.domain.Construction;
 import com.durandsuppicich.danmspedidos.domain.OrderState;
 import com.durandsuppicich.danmspedidos.domain.Product;
 import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
+import com.durandsuppicich.danmspedidos.exception.order.OrderStateNotFoundException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
 
+import com.durandsuppicich.danmspedidos.repository.IOrderStateJpaRepository;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +18,19 @@ import org.springframework.stereotype.Service;
 public class OrderService implements IOrderService {
 
     private final IOrderJpaRepository orderRepository;
+    private final IOrderStateJpaRepository orderStateRepository;
     private final ICustomerService customerService;
     private final IProductService productService;
     private final JmsTemplate jmsTemplate;
 
     public OrderService(
             IOrderJpaRepository orderRepository,
+            IOrderStateJpaRepository orderStateRepository,
             ICustomerService customerService,
             IProductService productService,
             JmsTemplate jmsTemplate) {
         this.orderRepository = orderRepository;
+        this.orderStateRepository = orderStateRepository;
         this.customerService = customerService;
         this.productService = productService;
         this.jmsTemplate = jmsTemplate;
@@ -85,7 +90,14 @@ public class OrderService implements IOrderService {
         orderRepository
                 .findById(id)
                 .ifPresentOrElse(
-                        o -> updateOrderState(o, partialOrder.getState()),
+                        o -> {
+                            orderStateRepository
+                                    .findById(partialOrder.getState().getId())
+                                    .ifPresentOrElse(
+                                            orderState -> updateOrderState(o, orderState),
+                                            () -> {throw new OrderStateNotFoundException();});
+
+                        },
                         () -> {throw new OrderIdNotFoundException(id);});
     }
 
@@ -124,7 +136,7 @@ public class OrderService implements IOrderService {
 
                     order.setState(new OrderState(5, "Aceptado"));
 
-                    // TODO jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
+                    jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
 
                 } else {
                     order.setState(new OrderState(6, "Rechazado"));

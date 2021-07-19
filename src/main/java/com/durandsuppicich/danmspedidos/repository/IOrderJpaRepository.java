@@ -15,7 +15,6 @@ public interface IOrderJpaRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findByState_description(String state);
 
-    // TODO check
     @Query(value = "SELECT * " +
             "FROM ms_orders.order o " +
             "JOIN ms_users.construction c ON o.construction_id = c.construction_id " +
