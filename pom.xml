@@ -12,7 +12,7 @@
 	<groupId>com.durand-suppicich</groupId>
 	<artifactId>dan-ms-pedidos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>dan-ms-orders</name>
+	<name>dan-ms-pedidos</name>
 	<description>Lab DAM API Pedidos</description>
 	<properties>
 		<java.version>11</java.version>
