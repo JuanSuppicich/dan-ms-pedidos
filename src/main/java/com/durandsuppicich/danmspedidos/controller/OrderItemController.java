@@ -26,7 +26,7 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping("/api/order/{orderId}/item")
+@RequestMapping("/api/orders/{orderId}/items")
 @Api(value = "OrderItemController")
 public class OrderItemController {
 
