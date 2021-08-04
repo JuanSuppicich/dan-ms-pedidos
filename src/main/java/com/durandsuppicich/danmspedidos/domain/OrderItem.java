@@ -8,10 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "order_item", schema = "ms_orders")
-public class OrderItem {
+public class OrderItem implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
