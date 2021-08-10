@@ -7,6 +7,7 @@ import com.durandsuppicich.danmspedidos.domain.OrderState;
 import com.durandsuppicich.danmspedidos.domain.Product;
 import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.exception.order.OrderStateNotFoundException;
+import com.durandsuppicich.danmspedidos.exception.order.OrderStateUpdateException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
 
@@ -113,42 +114,93 @@ public class OrderService implements IOrderService {
 
     private void updateOrderState(Order order, OrderState orderState) {
 
-        if (orderState.getDescription().equals("Confirmado")) {
+        String currentState = order.getState().getDescription();
+        String newState = orderState.getDescription();
 
-            boolean availableStock = order
-                    .getItems()
-                    .stream()
-                    .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
-
-            double totalPrice = order
-                    .getItems()
-                    .stream()
-                    .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
-                    .sum();
-
-            Double customerBalance = customerService.getBalance(order.getConstruction());
-
-            double newBalance = customerBalance - totalPrice;
-
-            if (availableStock) {
-
-                if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
-
-                    order.setState(new OrderState(5, "Aceptado"));
-
-                    jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
-
-                } else {
-                    order.setState(new OrderState(6, "Rechazado"));
+        switch (newState) {
+            case "Confirmado":
+                switch (currentState) {
+                    case "Nuevo":
+                        orderConfirmation(order);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
                 }
+            case "Cancelado":
+                switch (currentState) {
+                    case "Nuevo":
+                    case "Confirmado":
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "Aceptado":
+                switch (currentState) {
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "En preparacion":
+                switch (currentState) {
+                    case "Aceptado":
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "Entregado":
+                switch (currentState) {
+                    case "En preparacion":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            default:
+                throw new OrderStateUpdateException(currentState, newState);
+        }
+    }
+
+    private void orderConfirmation(Order order) {
+
+        boolean availableStock = order
+                .getItems()
+                .stream()
+                .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
+
+        double totalPrice = order
+                .getItems()
+                .stream()
+                .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
+                .sum();
+
+        Double customerBalance = customerService.getBalance(order.getConstruction());
+
+        double newBalance = customerBalance - totalPrice;
+
+        if (availableStock) {
+
+            if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
+
+                order.setState(new OrderState(5, "Aceptado"));
+
+                jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
+
             } else {
-                order.setState(new OrderState(3, "Pendiente"));
+                order.setState(new OrderState(6, "Rechazado"));
             }
         } else {
-            order.setState(orderState);
+            order.setState(new OrderState(3, "Pendiente"));
         }
-
-        orderRepository.save(order);
     }
 
     private Boolean verifyStock(Product product, Integer quantity) {
