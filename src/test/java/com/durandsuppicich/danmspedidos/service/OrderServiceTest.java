@@ -30,8 +30,6 @@ public class OrderServiceTest {
     @Autowired
     IOrderService orderService;
 
-    @MockBean
-    ICustomerService customerService;
 
     @MockBean
     IProductService productService;
@@ -73,8 +71,6 @@ public class OrderServiceTest {
     public void post_DataOk_AcceptedOrder() {
 
         when(productService.getAvailableStock(any(Product.class))).thenReturn(5);
-        when(customerService.getBalance(any(Construction.class))).thenReturn(1000.0);
-        when(customerService.getMaximumNegativeBalance(any(Construction.class))).thenReturn(1000.0);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         Order result = orderService.post(order);
@@ -87,8 +83,6 @@ public class OrderServiceTest {
     public void post_CustomerWithoutBalanceButIsLowRisk_AcceptedOrder() {
 
         when(productService.getAvailableStock(any(Product.class))).thenReturn(5);
-        when(customerService.getBalance(any(Construction.class))).thenReturn(0.0);
-        when(customerService.getMaximumNegativeBalance(any(Construction.class))).thenReturn(1000.0);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         Order result = orderService.post(order);
@@ -104,8 +98,6 @@ public class OrderServiceTest {
         order.getItems().add(2, oi3);
 
         when(productService.getAvailableStock(any(Product.class))).thenReturn(5);
-        when(customerService.getBalance(any(Construction.class))).thenReturn(0.0);
-        when(customerService.getMaximumNegativeBalance(any(Construction.class))).thenReturn(1000.0);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         Order result = orderService.post(order);
@@ -118,8 +110,6 @@ public class OrderServiceTest {
     public void post_CustomerWithoutBalanceAndIsNotLowRisk_BadRequestException() {
 
         when(productService.getAvailableStock(any(Product.class))).thenReturn(5);
-        when(customerService.getBalance(any(Construction.class))).thenReturn(0.0);
-        when(customerService.getMaximumNegativeBalance(any(Construction.class))).thenReturn(400.0);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         assertThrows(BadRequestException.class, () -> orderService.post(order));

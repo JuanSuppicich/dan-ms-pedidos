@@ -4,7 +4,7 @@ import com.durandsuppicich.danmspedidos.exception.http.BadRequestException;
 
 public class OrderStateUpdateException extends BadRequestException {
 
-    private static final String DEFAULT_MESSAGE = "Illegal order state update. Order can not be updated to given state. ";
+    private static final String DEFAULT_MESSAGE = "Illegal order state update. Order cannot be updated to the given state. ";
 
     public OrderStateUpdateException() {
         super(DEFAULT_MESSAGE);

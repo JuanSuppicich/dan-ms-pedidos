@@ -2,6 +2,7 @@ package com.durandsuppicich.danmspedidos.service;
 
 import java.util.List;
 
+import com.durandsuppicich.danmspedidos.client.IUserClient;
 import com.durandsuppicich.danmspedidos.domain.Construction;
 import com.durandsuppicich.danmspedidos.domain.OrderState;
 import com.durandsuppicich.danmspedidos.domain.Product;
@@ -12,6 +13,8 @@ import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
 
 import com.durandsuppicich.danmspedidos.repository.IOrderStateJpaRepository;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +23,24 @@ public class OrderService implements IOrderService {
 
     private final IOrderJpaRepository orderRepository;
     private final IOrderStateJpaRepository orderStateRepository;
-    private final ICustomerService customerService;
     private final IProductService productService;
     private final JmsTemplate jmsTemplate;
+    private final IUserClient userClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     public OrderService(
             IOrderJpaRepository orderRepository,
             IOrderStateJpaRepository orderStateRepository,
-            ICustomerService customerService,
             IProductService productService,
-            JmsTemplate jmsTemplate) {
+            JmsTemplate jmsTemplate,
+            IUserClient userClient,
+            CircuitBreakerFactory circuitBreakerFactory) {
         this.orderRepository = orderRepository;
         this.orderStateRepository = orderStateRepository;
-        this.customerService = customerService;
         this.productService = productService;
         this.jmsTemplate = jmsTemplate;
+        this.userClient = userClient;
+        this.circuitBreakerFactory = circuitBreakerFactory;
     }
 
     @Override
@@ -172,6 +178,8 @@ public class OrderService implements IOrderService {
 
     private void orderConfirmation(Order order) {
 
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuit-breaker");
+
         boolean availableStock = order
                 .getItems()
                 .stream()
@@ -183,13 +191,16 @@ public class OrderService implements IOrderService {
                 .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
                 .sum();
 
-        Double customerBalance = customerService.getBalance(order.getConstruction());
+        Double customerBalance = circuitBreaker.run(
+                () -> userClient.getCustomerBalance(order.getConstruction().getId()),
+                throwable -> defaultCustomerBalance()
+        );
 
         double newBalance = customerBalance - totalPrice;
 
         if (availableStock) {
 
-            if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
+            if (newBalance >= 0 || this.isLowRisk(order.getConstruction().getId(), newBalance)) {
 
                 order.setState(new OrderState(5, "Aceptado"));
 
@@ -207,8 +218,23 @@ public class OrderService implements IOrderService {
         return productService.getAvailableStock(product) >= quantity;
     }
 
-    private Boolean isLowRisk(Construction construction, Double newBalance) {
-        Double maximumNegativeBalance = customerService.getMaximumNegativeBalance(construction);
+    private Boolean isLowRisk(Integer constructionId, Double newBalance) {
+
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuit-breaker");
+
+        Double maximumNegativeBalance = circuitBreaker.run(
+                () -> userClient.getCustomerMaximumNegativeBalance(constructionId),
+                throwable -> defaultMaximumNegativeBalance()
+        );
+
         return Math.abs(newBalance) < maximumNegativeBalance;
+    }
+
+    public Double defaultCustomerBalance() {
+        return 0.0;
+    }
+
+    public Double defaultMaximumNegativeBalance() {
+        return 10000.0;
     }
 }
