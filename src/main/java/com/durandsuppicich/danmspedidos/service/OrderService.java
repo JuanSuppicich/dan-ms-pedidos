@@ -2,15 +2,19 @@ package com.durandsuppicich.danmspedidos.service;
 
 import java.util.List;
 
+import com.durandsuppicich.danmspedidos.client.IUserClient;
 import com.durandsuppicich.danmspedidos.domain.Construction;
 import com.durandsuppicich.danmspedidos.domain.OrderState;
 import com.durandsuppicich.danmspedidos.domain.Product;
 import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.exception.order.OrderStateNotFoundException;
+import com.durandsuppicich.danmspedidos.exception.order.OrderStateUpdateException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
 import com.durandsuppicich.danmspedidos.domain.Order;
 
 import com.durandsuppicich.danmspedidos.repository.IOrderStateJpaRepository;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,21 +23,24 @@ public class OrderService implements IOrderService {
 
     private final IOrderJpaRepository orderRepository;
     private final IOrderStateJpaRepository orderStateRepository;
-    private final ICustomerService customerService;
     private final IProductService productService;
     private final JmsTemplate jmsTemplate;
+    private final IUserClient userClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     public OrderService(
             IOrderJpaRepository orderRepository,
             IOrderStateJpaRepository orderStateRepository,
-            ICustomerService customerService,
             IProductService productService,
-            JmsTemplate jmsTemplate) {
+            JmsTemplate jmsTemplate,
+            IUserClient userClient,
+            CircuitBreakerFactory circuitBreakerFactory) {
         this.orderRepository = orderRepository;
         this.orderStateRepository = orderStateRepository;
-        this.customerService = customerService;
         this.productService = productService;
         this.jmsTemplate = jmsTemplate;
+        this.userClient = userClient;
+        this.circuitBreakerFactory = circuitBreakerFactory;
     }
 
     @Override
@@ -113,50 +120,121 @@ public class OrderService implements IOrderService {
 
     private void updateOrderState(Order order, OrderState orderState) {
 
-        if (orderState.getDescription().equals("Confirmado")) {
+        String currentState = order.getState().getDescription();
+        String newState = orderState.getDescription();
 
-            boolean availableStock = order
-                    .getItems()
-                    .stream()
-                    .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
-
-            double totalPrice = order
-                    .getItems()
-                    .stream()
-                    .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
-                    .sum();
-
-            Double customerBalance = customerService.getBalance(order.getConstruction());
-
-            double newBalance = customerBalance - totalPrice;
-
-            if (availableStock) {
-
-                if (newBalance >= 0 || this.isLowRisk(order.getConstruction(), newBalance)) {
-
-                    order.setState(new OrderState(5, "Aceptado"));
-
-                    jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
-
-                } else {
-                    order.setState(new OrderState(6, "Rechazado"));
+        switch (newState) {
+            case "Confirmado":
+                switch (currentState) {
+                    case "Nuevo":
+                        orderConfirmation(order);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
                 }
+            case "Cancelado":
+                switch (currentState) {
+                    case "Nuevo":
+                    case "Confirmado":
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "Aceptado":
+                switch (currentState) {
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "En preparacion":
+                switch (currentState) {
+                    case "Aceptado":
+                    case "Pendiente":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            case "Entregado":
+                switch (currentState) {
+                    case "En preparacion":
+                        order.setState(orderState);
+                        orderRepository.save(order);
+                        break;
+                    default:
+                        throw new OrderStateUpdateException(currentState, newState);
+                }
+            default:
+                throw new OrderStateUpdateException(currentState, newState);
+        }
+    }
+
+    private void orderConfirmation(Order order) {
+
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuit-breaker");
+
+        boolean availableStock = order
+                .getItems()
+                .stream()
+                .allMatch(oi -> verifyStock(oi.getProduct(), oi.getQuantity()));
+
+        double totalPrice = order
+                .getItems()
+                .stream()
+                .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
+                .sum();
+
+        Double customerBalance = circuitBreaker.run(
+                () -> userClient.getCustomerBalance(order.getConstruction().getId()),
+                throwable -> defaultCustomerBalance()
+        );
+
+        double newBalance = customerBalance - totalPrice;
+
+        if (availableStock) {
+
+            if (newBalance >= 0 || this.isLowRisk(order.getConstruction().getId(), newBalance)) {
+
+                order.setState(new OrderState(5, "Aceptado"));
+
+                jmsTemplate.convertAndSend("COLA_PEDIDOS", order.getId());
+
             } else {
-                order.setState(new OrderState(3, "Pendiente"));
+                order.setState(new OrderState(6, "Rechazado"));
             }
         } else {
-            order.setState(orderState);
+            order.setState(new OrderState(3, "Pendiente"));
         }
-
-        orderRepository.save(order);
     }
 
     private Boolean verifyStock(Product product, Integer quantity) {
         return productService.getAvailableStock(product) >= quantity;
     }
 
-    private Boolean isLowRisk(Construction construction, Double newBalance) {
-        Double maximumNegativeBalance = customerService.getMaximumNegativeBalance(construction);
+    private Boolean isLowRisk(Integer constructionId, Double newBalance) {
+
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuit-breaker");
+
+        Double maximumNegativeBalance = circuitBreaker.run(
+                () -> userClient.getCustomerMaximumNegativeBalance(constructionId),
+                throwable -> defaultMaximumNegativeBalance()
+        );
+
         return Math.abs(newBalance) < maximumNegativeBalance;
+    }
+
+    public Double defaultCustomerBalance() {
+        return 0.0;
+    }
+
+    public Double defaultMaximumNegativeBalance() {
+        return 10000.0;
     }
 }
