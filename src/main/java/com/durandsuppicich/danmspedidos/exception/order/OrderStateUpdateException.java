@@ -10,8 +10,8 @@ public class OrderStateUpdateException extends BadRequestException {
         super(DEFAULT_MESSAGE);
     }
 
-    public OrderStateUpdateException(String currentState, String state) {
+    public OrderStateUpdateException(String currentState, String newState) {
         super(DEFAULT_MESSAGE + "Current state is " + "{" + currentState + "}"
-            + "  while the given state is " + "{" + state + "}. " + "Review order's state machine.");
+            + "  while the given state is " + "{" + newState + "}. " + "Review order's state machine.");
 }
 }
