@@ -133,6 +133,7 @@ public class OrderService implements IOrderService {
                     default:
                         throw new OrderStateUpdateException(currentState, newState);
                 }
+                break;
             case "Cancelado":
                 switch (currentState) {
                     case "Nuevo":
@@ -144,6 +145,7 @@ public class OrderService implements IOrderService {
                     default:
                         throw new OrderStateUpdateException(currentState, newState);
                 }
+                break;
             case "Aceptado":
                 switch (currentState) {
                     case "Pendiente":
@@ -153,15 +155,18 @@ public class OrderService implements IOrderService {
                     default:
                         throw new OrderStateUpdateException(currentState, newState);
                 }
+                break;
             case "En preparacion":
                 switch (currentState) {
                     case "Aceptado":
                     case "Pendiente":
                         order.setState(orderState);
                         orderRepository.save(order);
+                        break;
                     default:
                         throw new OrderStateUpdateException(currentState, newState);
                 }
+                break;
             case "Entregado":
                 switch (currentState) {
                     case "En preparacion":
@@ -171,6 +176,7 @@ public class OrderService implements IOrderService {
                     default:
                         throw new OrderStateUpdateException(currentState, newState);
                 }
+                break;
             default:
                 throw new OrderStateUpdateException(currentState, newState);
         }
