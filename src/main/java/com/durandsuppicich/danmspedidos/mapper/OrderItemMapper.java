@@ -42,6 +42,7 @@ public class OrderItemMapper implements IOrderItemMapper {
         orderItemDto.setId(orderItem.getId());
         orderItemDto.setQuantity(orderItem.getQuantity());
         orderItemDto.setPrice(orderItem.getPrice());
+        orderItemDto.setProductId(orderItem.getProduct().getId());
         orderItemDto.setProductName(orderItem.getProduct().getName());
 
         return orderItemDto;

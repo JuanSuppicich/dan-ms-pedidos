@@ -5,6 +5,7 @@ public class OrderItemDto {
     private Integer id;
     private Integer quantity;
     private Double price;
+    private Integer productId;
     private String productName;
 
     public Integer getId() {
@@ -29,6 +30,14 @@ public class OrderItemDto {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getProductName() {
