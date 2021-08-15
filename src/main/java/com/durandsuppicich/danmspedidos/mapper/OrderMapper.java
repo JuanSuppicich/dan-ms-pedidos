@@ -81,6 +81,7 @@ public class OrderMapper implements IOrderMapper {
         orderDto.setId(order.getId());
         orderDto.setShippingDate(order.getShippingDate());
         orderDto.setStateDescription(order.getState().getDescription());
+        orderDto.setStateId(order.getState().getId());
         orderDto.setConstructionDescription(order.getConstruction().getDescription());
         orderDto.setItemCount(order.getItems().size());
         orderDto.setTotalPrice(totalPrice);
