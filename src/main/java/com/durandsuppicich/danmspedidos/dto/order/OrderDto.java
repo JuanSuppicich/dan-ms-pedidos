@@ -8,6 +8,7 @@ public class OrderDto {
     private Instant shippingDate;
     private String stateDescription;
     private Integer stateId;
+    private Integer constructionId;
     private String constructionDescription;
     private Integer itemCount;
     private Double totalPrice;
@@ -42,6 +43,14 @@ public class OrderDto {
 
     public void setStateId(Integer stateId) {
         this.stateId = stateId;
+    }
+
+    public Integer getConstructionId() {
+        return constructionId;
+    }
+
+    public void setConstructionId(Integer constructionId) {
+        this.constructionId = constructionId;
     }
 
     public String getConstructionDescription() {
