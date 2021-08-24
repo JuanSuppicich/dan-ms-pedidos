@@ -127,7 +127,7 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping(path = "/{id}")
+    @RequestMapping(value = "/{id}/update-state", method = {RequestMethod.PATCH, RequestMethod.PUT})
     @ApiOperation(value = "Updates the order state based on the given id")
     public ResponseEntity<?> patch(
             @RequestBody @Valid OrderPatchDto orderDto,
