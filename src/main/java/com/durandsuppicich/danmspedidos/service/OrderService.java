@@ -3,14 +3,11 @@ package com.durandsuppicich.danmspedidos.service;
 import java.util.List;
 
 import com.durandsuppicich.danmspedidos.client.IUserClient;
-import com.durandsuppicich.danmspedidos.domain.Construction;
-import com.durandsuppicich.danmspedidos.domain.OrderState;
-import com.durandsuppicich.danmspedidos.domain.Product;
+import com.durandsuppicich.danmspedidos.domain.*;
 import com.durandsuppicich.danmspedidos.exception.order.OrderIdNotFoundException;
 import com.durandsuppicich.danmspedidos.exception.order.OrderStateNotFoundException;
 import com.durandsuppicich.danmspedidos.exception.order.OrderStateUpdateException;
 import com.durandsuppicich.danmspedidos.repository.IOrderJpaRepository;
-import com.durandsuppicich.danmspedidos.domain.Order;
 
 import com.durandsuppicich.danmspedidos.repository.IOrderStateJpaRepository;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
@@ -194,7 +191,7 @@ public class OrderService implements IOrderService {
         double totalPrice = order
                 .getItems()
                 .stream()
-                .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
+                .mapToDouble(OrderItem::getPrice)
                 .sum();
 
         Double customerBalance = circuitBreaker.run(
