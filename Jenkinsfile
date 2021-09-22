@@ -19,19 +19,30 @@ pipeline {
             steps {
                 bat "java -version"
                 bat "./mvnw clean"
-                bat "echo buildeando develop"
+                bat "echo building develop"
             }
         }
         stage('backend tests') {
             steps {
                 bat "./mvnw verify"
-                bat "echo 'configurar para ejecutar los tests'"
             }
         }
         stage('Analisis estatico') {
             steps {
                 bat "./mvnw site"
                 bat "./mvnw checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs spotbugs:spotbugs"
+            }
+        }
+        stage('reportes') {
+            steps {
+                publishHTML([allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'target/site',
+                reportFiles: 'index.html',
+                reportName: 'Site'
+            ])
+            step([$class: 'CordellWalkerRecorder'])
             }
         }
     }

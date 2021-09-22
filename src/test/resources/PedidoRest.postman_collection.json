@@ -1,0 +1,353 @@
+{
+	"info": {
+		"_postman_id": "0eddfce4-408f-4a7b-838c-4fb3ba147c5d",
+		"name": "PedidoRest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "crear",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"fecha\": \"2021-05-08T23:12:52.810Z\",\r\n    \"obra\": {\r\n        \"id\": 1\r\n    },\r\n    \"detalles\": [\r\n        { \r\n            \"producto\": {\r\n                \"id\": 1\r\n            },\r\n            \"cantidad\": 1,\r\n            \"precio\": 10.00\r\n        },\r\n        { \r\n            \"producto\": {\r\n                \"id\": 2\r\n            },\r\n            \"cantidad\": 2,\r\n            \"precio\": 20.00\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "crear",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"fecha\": \"2021-05-08T23:21:56.894Z\",\r\n    \"obra\": {\r\n        \"id\": 2\r\n    },\r\n    \"detalles\": [\r\n        { \r\n            \"producto\": {\r\n                \"id\": 3\r\n            },\r\n            \"cantidad\": 3,\r\n            \"precio\": 30.00\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "agregarDetalle",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"producto\": {\r\n        \"id\": 2\r\n    },\r\n    \"cantidad\": 2,\r\n    \"precio\": 20.00\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/2/detalle",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"2",
+						"detalle"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "todos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pedidoPorId",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/1",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pedidoPorIdObra",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}?idObra=2",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"query": [
+						{
+							"key": "idObra",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pedidosPorEstado",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}?estado=Nuevo",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"query": [
+						{
+							"key": "estado",
+							"value": "Nuevo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pedidosPorCuit",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}?cuit=111111111",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"query": [
+						{
+							"key": "cuit",
+							"value": "111111111"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarDetalle",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/1/detalle/2",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"1",
+						"detalle",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "actualizar",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 1,\r\n    \"fecha\": \"2022-09-20T23:12:52.810Z\",\r\n    \"estado\": {\r\n        \"id\": 1,\r\n        \"estado\": \"Nuevo\"\r\n    },\r\n    \"obra\": {\r\n        \"id\": 1\r\n    },\r\n    \"detalles\": [\r\n        { \r\n            \"id\": 1,\r\n            \"producto\": {\r\n                \"id\": 1\r\n            },\r\n            \"cantidad\": 1,\r\n            \"precio\": 10.00\r\n        },\r\n        { \r\n            \"id\": 2,\r\n            \"producto\": {\r\n                \"id\": 2\r\n            },\r\n            \"cantidad\": 2,\r\n            \"precio\": 20.00\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/1",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "actualizarDetalle",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 4,\r\n    \"producto\": {\r\n        \"id\": 2\r\n    },\r\n    \"cantidad\": 10,\r\n    \"precio\": 20.00\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/2/detalle/4",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"2",
+						"detalle",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "actualizarEstado",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 1,\r\n    \"estado\": {\r\n        \"id\": 2,\r\n        \"estado\": \"Confirmado\" \r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/1",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "borrar",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/2",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "borrarDetalle",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url-Pedido(port 9001)}}/1/detalle/2",
+					"host": [
+						"{{url-Pedido(port 9001)}}"
+					],
+					"path": [
+						"1",
+						"detalle",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url-PedidoRest",
+			"value": "http://localhost:8080/api/pedido"
+		},
+		{
+			"key": "{{url-Pedido(port 9001)}}",
+			"value": "http://localhost:9001/api/pedido"
+		},
+		{
+			"key": "url-Pedido(port 9001)",
+			"value": "http://localhost:9001/api/pedido"
+		}
+	]
+}

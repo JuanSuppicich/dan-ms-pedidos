@@ -1,6 +1,6 @@
-# Dan-ms-pedidos
+# Dan-ms-orders
 
-Repositorio API de pedidos para laboratorio curso DAN. 
+Repositorio API de orders para laboratorio curso DAN. 
 
 ## Desarrolladores
 
