@@ -75,7 +75,7 @@ public class OrderMapper implements IOrderMapper {
         Double totalPrice = order
                 .getItems()
                 .stream()
-                .mapToDouble(oi -> oi.getQuantity() * oi.getPrice())
+                .mapToDouble(OrderItem::getPrice)
                 .sum();
 
         orderDto.setId(order.getId());
